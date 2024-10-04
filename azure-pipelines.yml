@@ -1,0 +1,75 @@
+# Trigger the pipeline when changes are pushed to the main or develop branch
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+# Run pipeline on Pull Requests targeting main or develop branches
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+# Specify the environment for the pipeline to run
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Define the steps to build, test, and deploy the Godot game
+steps:
+# 1. Install Godot CLI for Linux (Replace version with your Godot version)
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo Installing Godot...
+      wget https://downloads.tuxfamily.org/godotengine/3.5.2/mono/Godot_v3.5.2-stable_mono_x11_64.zip
+      unzip Godot_v3.5.2-stable_mono_x11_64.zip -d Godot
+      sudo mv Godot/Godot_v3.5.2-stable_mono_x11_64 /usr/local/bin/godot
+  displayName: 'Install Godot Engine'
+
+# 2. Bump version number (Assume version.txt contains current version)
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo Bumping version...
+      VERSION_FILE="version.txt"
+      if [ ! -f $VERSION_FILE ]; then
+        echo "1.0.0" > $VERSION_FILE
+      fi
+      VERSION=$(cat $VERSION_FILE)
+      echo "Current version: $VERSION"
+      
+      # Increment the version number (e.g., patch version increment)
+      IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
+      VERSION_PARTS[2]=$((VERSION_PARTS[2] + 1))
+      NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+      echo $NEW_VERSION > $VERSION_FILE
+      echo "New version: $NEW_VERSION"
+      
+      # Update the version in project.godot
+      sed -i "s/^config\/version=.*/config\/version=\"$NEW_VERSION\"/" project.godot
+  displayName: 'Bump Game Version'
+
+# 3. Export Godot game to various platforms
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo Exporting Godot Game...
+      godot --export "Linux/X11" ./build/game_linux.x86_64
+      godot --export "Windows Desktop" ./build/game_windows.exe
+      godot --export "HTML5" ./build/game_html5.zip
+  displayName: 'Export Godot Game to Linux, Windows, HTML5'
+
+# 4. Package exported builds as artifacts for download
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)/build'
+    artifactName: 'game_builds'
+    publishLocation: 'pipeline'
+  displayName: 'Publish Game Builds as Artifacts'
+
+# Tests are missing
