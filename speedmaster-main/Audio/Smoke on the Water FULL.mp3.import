@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cwjsspsy0wead"
+path="res://.godot/imported/Smoke on the Water FULL.mp3-36e44c0752e65e792d9229f172a0c691.mp3str"
+
+[deps]
+
+source_file="res://Audio/Smoke on the Water FULL.mp3"
+dest_files=["res://.godot/imported/Smoke on the Water FULL.mp3-36e44c0752e65e792d9229f172a0c691.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
