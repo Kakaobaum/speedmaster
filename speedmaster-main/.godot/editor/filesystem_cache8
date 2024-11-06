@@ -1,6 +1,7 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1730893445
+::res://::1730910009
 azure-pipelines.yml::TextFile::-1::1730893320::0::1::::<><>::
+default_bus_layout.tres::AudioBusLayout::7487544052907752692::1730908736::0::1::::<><>::
 export_presets.cfg::TextFile::-1::1730893320::0::1::::<><>::
 icon.svg::CompressedTexture2D::3880330523715814195::1730893320::1730893369::1::::<><>::
 README.md::TextFile::-1::1730893320::0::1::::<><>::
@@ -25,11 +26,14 @@ welcome.mp3::AudioStreamMP3::3291751986529995455::1730893320::1730893369::1::::<
 ::res://Images/::1730893370
 Background_menu.png::CompressedTexture2D::2122817051789580900::1730893320::1730893370::1::::<><>::
 Blinking Free.ttf::FontFile::8059470204173898794::1730893320::1730893369::1::::<><>::
-::res://Scenes/::1730893422
+::res://Scenes/::1730909962
+contents.gd::GDScript::-1::1730903077::0::1::::<>VBoxContainer<>::
 game.tscn::PackedScene::2069236347631318022::1730893320::0::1::::<><>::res://Scenes/GameScene.gd
-GameScene.gd::GDScript::-1::1730893320::0::1::::<>Node2D<>::
-menu.tscn::PackedScene::6686763366935732979::1730893422::0::1::::<><>::res://Scripts/menu.gd<>uid://5ikqsvc0nckq::::res://Images/Background_menu.png<>uid://dm3ckdb3jwlhq::::res://Images/Blinking Free.ttf
-settings.tscn::PackedScene::5164637773981371595::1730893320::0::1::::<><>::
+GameScene.gd::GDScript::-1::1730903078::0::1::::<>Node2D<>::
+master_volume.gd::GDScript::-1::1730909947::0::1::::<>HSlider<>::
+menu.tscn::PackedScene::6686763366935732979::1730906350::0::1::::<><>::res://Scripts/menu.gd<>uid://5ikqsvc0nckq::::res://Images/Background_menu.png<>uid://dm3ckdb3jwlhq::::res://Images/Blinking Free.ttf
+settings.gd::GDScript::-1::1730909886::0::1::::<>Node<>::
+settings.tscn::PackedScene::5164637773981371595::1730909962::0::1::::<><>::res://Scenes/settings.gd<>uid://5ikqsvc0nckq::::res://Images/Background_menu.png<>uid://dm3ckdb3jwlhq::::res://Images/Blinking Free.ttf<>res://Scenes/master_volume.gd<>uid://b4on0gpchch4l::::res://Audio/smoke on the water short.mp3
 tutorial.tscn::PackedScene::7800068149740146949::1730893320::0::1::::<><>::uid://bvjwqhgh72eop::::res://icon.svg
-::res://Scripts/::1730893421
-menu.gd::GDScript::-1::1730893421::0::1::::<>Control<>::
+::res://Scripts/::1730906855
+menu.gd::GDScript::-1::1730906855::0::1::::<>Control<>::

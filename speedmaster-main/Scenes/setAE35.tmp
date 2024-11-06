@@ -1,0 +1,101 @@
+[gd_scene load_steps=8 format=3 uid="uid://cft13g8ug6nd0"]
+
+[ext_resource type="Script" path="res://Scenes/settings.gd" id="1_8vig0"]
+[ext_resource type="Texture2D" uid="uid://5ikqsvc0nckq" path="res://Images/Background_menu.png" id="1_xyisa"]
+[ext_resource type="FontFile" uid="uid://dm3ckdb3jwlhq" path="res://Images/Blinking Free.ttf" id="2_ybdq7"]
+[ext_resource type="Script" path="res://Scenes/master_volume.gd" id="3_lohvc"]
+[ext_resource type="AudioStream" uid="uid://b4on0gpchch4l" path="res://Audio/smoke on the water short.mp3" id="5_eggrr"]
+
+[sub_resource type="FontVariation" id="FontVariation_t2pw3"]
+
+[sub_resource type="Theme" id="Theme_1frmx"]
+
+[node name="Settings" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8vig0")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -336.0
+offset_top = -166.0
+offset_right = 1456.0
+offset_bottom = 858.0
+texture = ExtResource("1_xyisa")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="contents" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Seperator" type="Control" parent="MarginContainer/contents"]
+layout_mode = 2
+
+[node name="Settings" type="Label" parent="MarginContainer/contents"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 24
+theme_override_fonts/font = ExtResource("2_ybdq7")
+theme_override_font_sizes/font_size = 74
+text = "Settings"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/contents"]
+custom_minimum_size = Vector2(600, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_stretch_ratio = 0.0
+alignment = 1
+
+[node name="VolumeText" type="Label" parent="MarginContainer/contents/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 12
+theme_override_fonts/font = ExtResource("2_ybdq7")
+theme_override_font_sizes/font_size = 64
+text = "Master Volume"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VolumeValue" type="Label" parent="MarginContainer/contents/HBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_fonts/font = SubResource("FontVariation_t2pw3")
+theme_override_font_sizes/font_size = 44
+text = "100"
+horizontal_alignment = 1
+
+[node name="masterVolume" type="HSlider" parent="MarginContainer/contents"]
+modulate = Color(1, 0.184314, 0.180392, 1)
+layout_mode = 2
+size_flags_vertical = 1
+size_flags_stretch_ratio = 0.0
+tooltip_text = "
+"
+theme = SubResource("Theme_1frmx")
+step = 0.001
+script = ExtResource("3_lohvc")
+bus_master = null
+
+[node name="TestAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_eggrr")

@@ -1,2 +1,2 @@
-res://Scenes/menu.tscn
-res://Scripts/menu.gd
+res://Scenes/settings.tscn
+res://Scenes/master_volume.gd
