@@ -1,0 +1,35 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1730893445
+azure-pipelines.yml::TextFile::-1::1730893320::0::1::::<><>::
+export_presets.cfg::TextFile::-1::1730893320::0::1::::<><>::
+icon.svg::CompressedTexture2D::3880330523715814195::1730893320::1730893369::1::::<><>::
+README.md::TextFile::-1::1730893320::0::1::::<><>::
+::res://Audio/::1730893369
+0.mp3::AudioStreamMP3::2854227336422902098::1730893320::1730893369::1::::<><>::
+3.mp3::AudioStreamMP3::6039736704563433488::1730893320::1730893369::1::::<><>::
+5.mp3::AudioStreamMP3::8150896337709652627::1730893320::1730893369::1::::<><>::
+6.mp3::AudioStreamMP3::2166805483527488682::1730893320::1730893369::1::::<><>::
+countdownStarter.mp3::AudioStreamMP3::3714869328776338446::1730893320::1730893369::1::::<><>::
+countdown_1.mp3::AudioStreamMP3::6982437699346174813::1730893320::1730893369::1::::<><>::
+countrdown_2.mp3::AudioStreamMP3::1041352323356440203::1730893320::1730893369::1::::<><>::
+greatJob.mp3::AudioStreamMP3::4796649304851397394::1730893320::1730893369::1::::<><>::
+mainGameStarter.mp3::AudioStreamMP3::2378757781871265948::1730893320::1730893369::1::::<><>::
+settings.mp3::AudioStreamMP3::5512171109400899915::1730893320::1730893369::1::::<><>::
+Smoke On The Water by Driff.mp3::AudioStreamMP3::3358318919854520898::1730893320::1730893369::1::::<><>::
+Smoke on the Water FULL.mp3::AudioStreamMP3::6336701194150996563::1730893320::1730893369::1::::<><>::
+smoke on the water short.mp3::AudioStreamMP3::4451632741918943489::1730893320::1730893369::1::::<><>::
+starten.mp3::AudioStreamMP3::39229575389516477::1730893320::1730893369::1::::<><>::
+tutorial.mp3::AudioStreamMP3::1370050214389368048::1730893320::1730893369::1::::<><>::
+verlassen.mp3::AudioStreamMP3::7111830088075936352::1730893320::1730893369::1::::<><>::
+welcome.mp3::AudioStreamMP3::3291751986529995455::1730893320::1730893369::1::::<><>::
+::res://Images/::1730893370
+Background_menu.png::CompressedTexture2D::2122817051789580900::1730893320::1730893370::1::::<><>::
+Blinking Free.ttf::FontFile::8059470204173898794::1730893320::1730893369::1::::<><>::
+::res://Scenes/::1730893422
+game.tscn::PackedScene::2069236347631318022::1730893320::0::1::::<><>::res://Scenes/GameScene.gd
+GameScene.gd::GDScript::-1::1730893320::0::1::::<>Node2D<>::
+menu.tscn::PackedScene::6686763366935732979::1730893422::0::1::::<><>::res://Scripts/menu.gd<>uid://5ikqsvc0nckq::::res://Images/Background_menu.png<>uid://dm3ckdb3jwlhq::::res://Images/Blinking Free.ttf
+settings.tscn::PackedScene::5164637773981371595::1730893320::0::1::::<><>::
+tutorial.tscn::PackedScene::7800068149740146949::1730893320::0::1::::<><>::uid://bvjwqhgh72eop::::res://icon.svg
+::res://Scripts/::1730893421
+menu.gd::GDScript::-1::1730893421::0::1::::<>Control<>::
