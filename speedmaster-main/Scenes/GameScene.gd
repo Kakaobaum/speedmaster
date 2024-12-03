@@ -14,7 +14,7 @@ var feedback_good = preload("res://Audio/greatJob.mp3")
 var cntdwn_2 = preload("res://Audio/countrdown_2.mp3")
 var cntdwn_1 = preload("res://Audio/countdown_1.mp3")
 var game_starter = preload("res://Audio/mainGameStarter.mp3")
-var song = preload("res://Audio/smoke on the water short.mp3")
+var song = preload("res://Audio/penguinmusic.mp3")
 # Funktion zum Abspielen des Notensounds basierend auf der Note
 func play_note_sound(note):
 	match note:
@@ -53,7 +53,7 @@ func play_feedback_sounds() -> void:
 	await feedback.finished
 	
 	# Wait 
-	await get_tree().create_timer(11.0).timeout 
+	await get_tree().create_timer(10.0).timeout 
 	var feedback_sounds = [feedback_good, cntdwn_starter, cntdwn_2, cntdwn_1]
 	for sound in feedback_sounds:
 		feedback.stream = sound
