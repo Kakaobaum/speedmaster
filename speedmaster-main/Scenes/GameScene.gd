@@ -111,7 +111,7 @@ func play_feedback_sounds() -> void:
 	await feedback.finished
 	
 	# Wait
-	await get_tree().create_timer(10.0).timeout
+	await get_tree().create_timer(6.0).timeout
 	var feedback_sounds = [feedback_good, cntdwn_starter, cntdwn_2, cntdwn_1]
 	for sound in feedback_sounds:
 		feedback.stream = sound
