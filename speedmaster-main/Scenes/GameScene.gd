@@ -51,6 +51,7 @@ func play_note_sound(note):
 			audio_player.stream = note_f_sound
 	audio_player.play()
 
+
 # Funktion zum Verarbeiten von Eingaben
 func _input(event: InputEvent) -> void:
 	var current_time = background_music_player.get_playback_position()
@@ -87,13 +88,15 @@ func handle_key_press(note: String, current_time: float, timestamps: Array):
 				matched = true
 				matched_timestamp = timestamp  # Store the matched timestamp
 				break
-
+	
 		# If no match, apply penalty
 		if not matched:
 			score -= 1
 			play_feedback("wrong")
 			print("Missed timing for ", note, "! Score: ", score)
-
+	else:
+		print("Key pressed: " + note)
+		
 	# Play note sound
 	play_note_sound(note)
 
@@ -146,6 +149,7 @@ func _ready() -> void:
 	await play_feedback_sounds()
 	# Lower volume of the keys
 	audio_player.volume_db = -8
+	await get_tree().create_timer(1.0).timeout
 	background_music_player.stream = song
 	game_started = true
 	background_music_player.play()
