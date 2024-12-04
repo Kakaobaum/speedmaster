@@ -5,7 +5,6 @@ extends Node2D
 @onready var background_music_player = $SongPlayer
 @onready var feedback = $FeedbackAudioPlayer
 @onready var feedback_score = $FeedbackGameScoring
-
 # Notensounds vorladen
 var note_a_sound = preload("res://Audio/0.mp3")
 var note_s_sound = preload("res://Audio/3.mp3")
@@ -19,7 +18,14 @@ var game_starter = preload("res://Audio/mainGameStarter.mp3")
 var song = preload("res://Audio/penguinmusic.mp3")
 var good = preload("res://Audio/good.mp3")
 var wrong = preload("res://Audio/wrong.mp3")
+var finished = preload("res://Audio/finished.mp3")
 var game_started = false
+
+# One-time steps.
+# Pick a voice. Here, we arbitrarily pick the first English voice.
+var voices = DisplayServer.tts_get_voices_for_language("en")
+var voice_id = voices[0]
+
 
 # Timing and scoring variables
 var score = 0
@@ -117,6 +123,23 @@ func play_feedback_sounds() -> void:
 		feedback.stream = sound
 		feedback.play()
 		await feedback.finished
+# End game functionality
+func end_game() -> void:
+	game_started = false
+	await get_tree().create_timer(2.0).timeout  # Wait 2 seconds after music ends
+
+	# Play finished sound
+	feedback_score.stream = finished
+	feedback_score.play()
+	await feedback_score.finished
+
+	# Text-to-speech announcement for final score
+	var speech = "Congratulations! Your score is " + str(score)
+	DisplayServer.tts_speak(speech, voice_id)
+	print(speech)
+	await get_tree().create_timer(2.0).timeout 
+	get_tree().change_scene_to_file("res://Scenes/menu.tscn")
+
 
 # Scene setup
 func _ready() -> void:
@@ -126,3 +149,5 @@ func _ready() -> void:
 	background_music_player.stream = song
 	game_started = true
 	background_music_player.play()
+# Connect the background music end to the end_game function
+	background_music_player.finished.connect(end_game)
