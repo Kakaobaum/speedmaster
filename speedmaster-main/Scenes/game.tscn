@@ -10,3 +10,5 @@ script = ExtResource("1_u74h6")
 [node name="SongPlayer" type="AudioStreamPlayer2D" parent="."]
 
 [node name="FeedbackAudioPlayer" type="AudioStreamPlayer2D" parent="."]
+
+[node name="FeedbackGameScoring" type="AudioStreamPlayer2D" parent="."]
