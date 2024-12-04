@@ -1,80 +1,98 @@
 extends Control
 
-var audio_player: AudioStreamPlayer2D  # Variable zum Speichern des AudioStreamPlayers
+var buttons = []
+var current_button_index = 0
+var audio_player: AudioStreamPlayer2D
 
-# Funktion, die aufgerufen wird, wenn das Hauptmenü geladen wird
 func _ready() -> void:
-	audio_player = $AudioStreamPlayer2D
-	
-	# Hover- und Fokus-Signale mit den Buttons verbinden
-	$VBoxContainer/btnStartGame.connect("mouse_entered", Callable(self, "_on_btn_start_game_hovered"))
-	$VBoxContainer/btnStartGame.connect("focus_entered", Callable(self, "_on_btn_start_game_hovered"))
-	
-	$VBoxContainer/btnTutorial.connect("mouse_entered", Callable(self, "_on_btn_tutorial_hovered"))
-	$VBoxContainer/btnTutorial.connect("focus_entered", Callable(self, "_on_btn_tutorial_hovered"))
-	
-	$VBoxContainer/btnExit.connect("mouse_entered", Callable(self, "_on_btn_exit_hovered"))
-	$VBoxContainer/btnExit.connect("focus_entered", Callable(self, "_on_btn_exit_hovered"))
-	
-	$VBoxContainer/btnSettings.connect("mouse_entered", Callable(self, "_on_btn_settings_hovered"))
-	$VBoxContainer/btnSettings.connect("focus_entered", Callable(self, "_on_btn_settings_hovered"))
+	# Store buttons in an array for navigation
+	buttons = [
+		$VBoxContainer/btnStartGame,
+		$VBoxContainer/btnTutorial,
+		$VBoxContainer/btnSettings,
+		$VBoxContainer/btnExit
+	]
 
-# Audio-Datei abspielen basierend auf dem bereitgestellten Pfad
+	# Set focus on the first button in the array
+	buttons[current_button_index].grab_focus()
+
+	# Play welcome audio
+	audio_player = $AudioStreamPlayer2D
+	_play_audio("res://Audio/welcome.mp3")
+
+	# Connect button signals
+	_connect_button_signals()
+
+func _connect_button_signals():
+	$VBoxContainer/btnStartGame.connect("focus_entered", Callable(self, "_on_btn_start_game_hovered"))
+	$VBoxContainer/btnTutorial.connect("focus_entered", Callable(self, "_on_btn_tutorial_hovered"))
+	$VBoxContainer/btnSettings.connect("focus_entered", Callable(self, "_on_btn_settings_hovered"))
+	$VBoxContainer/btnExit.connect("focus_entered", Callable(self, "_on_btn_exit_hovered"))
+
 func _play_audio(audio_file: String) -> void:
 	var audio_stream = load(audio_file) as AudioStream
 	if audio_stream:
 		audio_player.stream = audio_stream
 		audio_player.play()
 
-# Funktionen für Hover-Sounds
+# Arrow key navigation
+func _focus_previous_button():
+	current_button_index = (current_button_index - 1 + buttons.size()) % buttons.size()
+	buttons[current_button_index].grab_focus()
 
-# Wenn der 'Start Game'-Button gehovered wird
+func _focus_next_button():
+	current_button_index = (current_button_index + 1) % buttons.size()
+	buttons[current_button_index].grab_focus()
+
+func _activate_current_button():
+	match current_button_index:
+		0:
+			_on_btn_start_game_pressed()
+		1:
+			_on_btn_tutorial_pressed()
+		2:
+			_on_btn_settings_pressed()
+		3:
+			_on_btn_exit_pressed()
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_down"):
+		_focus_next_button()
+	elif event.is_action_pressed("ui_up"):
+		_focus_previous_button()
+	elif event.is_action_pressed("ui_accept"):
+		_activate_current_button()
+
+# Button actions
+func _on_btn_start_game_pressed() -> void:
+	_play_audio("res://Audio/starten.mp3")
+	await get_tree().create_timer(1.5).timeout
+	get_tree().change_scene_to_file("res://Scenes/game.tscn")
+
+func _on_btn_tutorial_pressed() -> void:
+	_play_audio("res://Audio/tutorial.mp3")
+	await get_tree().create_timer(1.5).timeout
+	get_tree().change_scene_to_file("res://Scenes/tutorial.tscn")
+
+func _on_btn_settings_pressed() -> void:
+	_play_audio("res://Audio/settings.mp3")
+	await get_tree().create_timer(1.5).timeout
+	get_tree().change_scene_to_file("res://Scenes/settings.tscn")
+
+func _on_btn_exit_pressed() -> void:
+	_play_audio("res://Audio/verlassen.mp3")
+	await get_tree().create_timer(1.5).timeout
+	get_tree().quit()
+
+# Hover sound functions
 func _on_btn_start_game_hovered() -> void:
 	_play_audio("res://Audio/starten.mp3")
 
-# Wenn der 'Tutorial'-Button gehovered wird
 func _on_btn_tutorial_hovered() -> void:
 	_play_audio("res://Audio/tutorial.mp3")
 
-# Wenn der 'Exit'-Button gehovered wird
 func _on_btn_exit_hovered() -> void:
 	_play_audio("res://Audio/verlassen.mp3")
 
-# Wenn der 'Settings'-Button gehovered wird
 func _on_btn_settings_hovered() -> void:
 	_play_audio("res://Audio/settings.mp3")
-
-# Tastatureingaben für Shortcuts definieren
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):  # Shortcut für "Enter"
-		_on_btn_start_game_pressed()  # Sound abspielen und die Funktion ausführen
-	elif event.is_action_pressed("tutorial_shortcut"):  # Shortcut für "T"
-		_on_btn_tutorial_pressed()  # Sound abspielen und die Funktion ausführen
-	elif event.is_action_pressed("ui_cancel"):  # Shortcut für "Escape"
-		_on_btn_exit_pressed()  # Sound abspielen und die Funktion ausführen
-	elif event.is_action_pressed("settings_shortcut"):  # Shortcut für "S"
-		_on_btn_settings_pressed()  # Sound abspielen und die Funktion ausführen
-
-# Funktion für den Start Game-Button
-func _on_btn_start_game_pressed() -> void:
-	_play_audio("res://Audio/starten.mp3")
-	await get_tree().create_timer(1.5).timeout  # Warte 1,5 Sekunden,damit der Sound zuerst abgespielt werden kann
-	get_tree().change_scene_to_file("res://Scenes/game.tscn")
-
-# Funktion für den Tutorial-Button
-func _on_btn_tutorial_pressed() -> void:
-	_play_audio("res://Audio/tutorial.mp3")
-	await get_tree().create_timer(1.5).timeout  # Warte 1,5 Sekunden,damit der Sound zuerst abgespielt werden kann
-	get_tree().change_scene_to_file("res://Scenes/tutorial.tscn")
-
-# Funktion für den Exit-Button
-func _on_btn_exit_pressed() -> void:
-	_play_audio("res://Audio/verlassen.mp3")
-	await get_tree().create_timer(1.5).timeout  # Warte 1,5 Sekunden,damit der Sound zuerst abgespielt werden kann
-	get_tree().quit()
-
-# Funktion für den Settings-Button
-func _on_btn_settings_pressed() -> void:
-	_play_audio("res://Audio/settings.mp3")
-	await get_tree().create_timer(1.5).timeout  # Warte 1,5 Sekunden
-	get_tree().change_scene_to_file("res://Scenes/settings.tscn") # Warte 1,5 Sekunden,damit der Sound zuerst abgespielt werden kann

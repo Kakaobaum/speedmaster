@@ -1,11 +1,14 @@
 [gd_scene load_steps=2 format=3 uid="uid://4qmaxq5y4w1s"]
 
-[ext_resource type="Texture2D" uid="uid://bvjwqhgh72eop" path="res://icon.svg" id="1_8l07r"]
+[ext_resource type="Script" path="res://Scenes/GameScene.gd" id="1_u74h6"]
 
-[node name="Game" type="Node"]
+[node name="GameScene" type="Node2D"]
+script = ExtResource("1_u74h6")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(267, 147)
-texture = ExtResource("1_8l07r")
+[node name="AudioPlayer" type="AudioStreamPlayer2D" parent="."]
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="SongPlayer" type="AudioStreamPlayer2D" parent="."]
+
+[node name="FeedbackAudioPlayer" type="AudioStreamPlayer2D" parent="."]
+
+[node name="FeedbackGameScoring" type="AudioStreamPlayer2D" parent="."]

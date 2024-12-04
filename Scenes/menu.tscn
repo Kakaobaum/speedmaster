@@ -71,7 +71,7 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/h_separation = 7
 theme_override_styles/normal = SubResource("StyleBoxFlat_o2qkb")
-text = "Start
+text = "Spiel Starten
 "
 
 [node name="btnTutorial" type="Button" parent="VBoxContainer"]
@@ -84,7 +84,8 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/h_separation = 7
 theme_override_styles/normal = SubResource("StyleBoxFlat_o2qkb")
-text = "Spielerklärung"
+text = "Tutorial
+"
 
 [node name="btnSettings" type="Button" parent="VBoxContainer"]
 layout_mode = 2
@@ -109,7 +110,7 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/h_separation = 7
 theme_override_styles/normal = SubResource("StyleBoxFlat_o2qkb")
-text = "Spiel verlassen"
+text = "Spiel Verlassen"
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 1
