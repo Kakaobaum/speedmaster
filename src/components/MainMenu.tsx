@@ -16,8 +16,7 @@ export function MainMenu({ onStartGame, onStartTutorial }: MainMenuProps) {
       "Welcome to SpeedMaster! " +
       `Your high score is ${highScore} points. ` +
       "Press the Space bar to start a new game. " +
-      "Press T to start the tutorial and learn how to play. " +
-      "Use the A, S, D, F, and G keys during the game to match the notes you hear.";
+      "Press T to start the tutorial and learn how to play. ";
     speak(welcomeMessage);
   }, [speak, highScore]);
 
