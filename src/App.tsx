@@ -13,6 +13,20 @@ import { MainMenu } from "./components/MainMenu";
 import { useAudio } from "./hooks/useAudio";
 import type { GameState } from "./types";
 
+
+const ENCOURAGEMENTS = [
+  "Great job!",
+  "You're on fire!",
+  "Keep it up!",
+  "Fantastic!",
+  "Amazing speed!",
+  "You're crushing it!",
+  "Incredible!",
+  "Perfect timing!",
+  "You're a natural!",
+  "Outstanding!",
+];
+
 const getInitialHighScore = () => {
   try {
     const saved = localStorage.getItem("speedmaster-highscore");
@@ -109,7 +123,14 @@ function App() {
           MIN_TIME_WINDOW,
           INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
         );
-
+        
+        // Add random encouragement every few correct answers
+        if (newScore % 30 === 0) {
+          const randomEncouragement =
+            ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+          speak(randomEncouragement);
+        }
+        
         if (newLevel > prevLevelRef.current) {
           speak(`Level ${newLevel}! Speed increased!`);
           prevLevelRef.current = newLevel;
