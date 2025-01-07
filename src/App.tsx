@@ -1,10 +1,27 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NOTES, INITIAL_TIME_WINDOW, MIN_TIME_WINDOW, TIME_WINDOW_DECREASE, POINTS_PER_NOTE, LEVEL_THRESHOLD } from './constants';
-import { Tutorial } from './components/Tutorial';
-import { GameOver } from './components/GameOver';
-import { MainMenu } from './components/MainMenu';
-import { useAudio } from './hooks/useAudio';
-import type { GameState } from './types';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  NOTES,
+  INITIAL_TIME_WINDOW,
+  MIN_TIME_WINDOW,
+  TIME_WINDOW_DECREASE,
+  POINTS_PER_NOTE,
+  LEVEL_THRESHOLD,
+} from "./constants";
+import { Tutorial } from "./components/Tutorial";
+import { GameOver } from "./components/GameOver";
+import { MainMenu } from "./components/MainMenu";
+import { useAudio } from "./hooks/useAudio";
+import type { GameState } from "./types";
+
+const getInitialHighScore = () => {
+  try {
+    const saved = localStorage.getItem("speedmaster-highscore");
+    return saved ? parseInt(saved, 10) : 0;
+  } catch (error) {
+    console.error("Error reading from localStorage:", error);
+    return 0;
+  }
+};
 
 function App() {
   const [gameState, setGameState] = useState<GameState>({
@@ -12,8 +29,8 @@ function App() {
     currentNote: null,
     isPlaying: false,
     timeWindow: INITIAL_TIME_WINDOW,
-    highScore: 0,
-    screen: 'menu',
+    highScore: getInitialHighScore(),
+    screen: "menu",
     level: 1,
   });
 
@@ -36,12 +53,21 @@ function App() {
       timerRef.current = undefined;
     }
     playWrong();
-    setGameState(prev => ({ 
-      ...prev, 
-      isPlaying: false,
-      screen: 'gameover',
-      currentNote: null,
-    }));
+    setGameState((prev) => {
+      const newHighScore = Math.max(prev.score, prev.highScore);
+      try {
+        localStorage.setItem("speedmaster-highscore", newHighScore.toString());
+      } catch (error) {
+        console.error("Error saving to localStorage:", error);
+      }
+      return {
+        ...prev,
+        isPlaying: false,
+        screen: "gameover",
+        currentNote: null,
+        highScore: newHighScore,
+      };
+    });
   }, [playWrong]);
 
   const startGame = useCallback(() => {
@@ -50,72 +76,96 @@ function App() {
       timerRef.current = undefined;
     }
     prevLevelRef.current = 1;
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       score: 0,
       isPlaying: true,
       timeWindow: INITIAL_TIME_WINDOW,
       level: 1,
-      screen: 'game',
+      screen: "game",
       currentNote: null,
     }));
   }, []);
 
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (!gameState.isPlaying || gameState.screen !== 'game' || !gameState.currentNote) return;
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (
+        !gameState.isPlaying ||
+        gameState.screen !== "game" ||
+        !gameState.currentNote
+      )
+        return;
 
-    if (event.key.toUpperCase() === gameState.currentNote.key) {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = undefined;
+      if (event.key.toUpperCase() === gameState.currentNote.key) {
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+          timerRef.current = undefined;
+        }
+
+        playCorrect();
+        const newScore = gameState.score + POINTS_PER_NOTE;
+        const newLevel = Math.floor(newScore / LEVEL_THRESHOLD) + 1;
+        const newTimeWindow = Math.max(
+          MIN_TIME_WINDOW,
+          INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
+        );
+
+        if (newLevel > prevLevelRef.current) {
+          speak(`Level ${newLevel}! Speed increased!`);
+          prevLevelRef.current = newLevel;
+        }
+
+        setGameState((prev) => ({
+          ...prev,
+          score: newScore,
+          level: newLevel,
+          timeWindow: newTimeWindow,
+          highScore: Math.max(prev.highScore, newScore),
+          currentNote: null,
+        }));
+      } else {
+        endGame();
       }
-      
-      playCorrect();
-      const newScore = gameState.score + POINTS_PER_NOTE;
-      const newLevel = Math.floor(newScore / LEVEL_THRESHOLD) + 1;
-      const newTimeWindow = Math.max(
-        MIN_TIME_WINDOW,
-        INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
-      );
-
-      if (newLevel > prevLevelRef.current) {
-        speak(`Level ${newLevel}! Speed increased!`);
-        prevLevelRef.current = newLevel;
-      }
-
-      setGameState(prev => ({
-        ...prev,
-        score: newScore,
-        level: newLevel,
-        timeWindow: newTimeWindow,
-        highScore: Math.max(prev.highScore, newScore),
-        currentNote: null,
-      }));
-    } else {
-      endGame();
-    }
-  }, [gameState.currentNote, gameState.score, gameState.isPlaying, gameState.screen, playCorrect, endGame, speak]);
+    },
+    [
+      gameState.currentNote,
+      gameState.score,
+      gameState.isPlaying,
+      gameState.screen,
+      playCorrect,
+      endGame,
+      speak,
+    ]
+  );
 
   useEffect(() => {
-    if (gameState.isPlaying && gameState.screen === 'game' && !gameState.currentNote) {
+    if (
+      gameState.isPlaying &&
+      gameState.screen === "game" &&
+      !gameState.currentNote
+    ) {
       const note = generateNote();
-      
-      // Clear any existing timer
+
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = undefined;
       }
 
-      // Set the new note
-      setGameState(prev => ({ ...prev, currentNote: note }));
+      setGameState((prev) => ({ ...prev, currentNote: note }));
       playNote(note.key);
 
-      // Start the timer
       timerRef.current = setTimeout(endGame, gameState.timeWindow);
     }
-  }, [gameState.isPlaying, gameState.currentNote, gameState.screen, gameState.timeWindow, generateNote, playNote, endGame]);
+  }, [
+    gameState.isPlaying,
+    gameState.currentNote,
+    gameState.screen,
+    gameState.timeWindow,
+    generateNote,
+    playNote,
+    endGame,
+  ]);
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -125,20 +175,39 @@ function App() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
-  if (gameState.screen === 'menu') {
-    return <MainMenu onStartGame={startGame} onStartTutorial={() => setGameState(prev => ({ ...prev, screen: 'tutorial' }))} />;
+  if (gameState.screen === "menu") {
+    return (
+      <MainMenu
+        onStartGame={startGame}
+        onStartTutorial={() =>
+          setGameState((prev) => ({ ...prev, screen: "tutorial" }))
+        }
+      />
+    );
   }
 
-  if (gameState.screen === 'tutorial') {
-    return <Tutorial onComplete={startGame} onExit={() => setGameState(prev => ({ ...prev, screen: 'menu' }))} />;
+  if (gameState.screen === "tutorial") {
+    return (
+      <Tutorial
+        onComplete={startGame}
+        onExit={() => setGameState((prev) => ({ ...prev, screen: "menu" }))}
+      />
+    );
   }
 
-  if (gameState.screen === 'gameover') {
-    return <GameOver score={gameState.score} highScore={gameState.highScore} onRestart={startGame} onExit={() => setGameState(prev => ({ ...prev, screen: 'menu' }))} />;
+  if (gameState.screen === "gameover") {
+    return (
+      <GameOver
+        score={gameState.score}
+        highScore={gameState.highScore}
+        onRestart={startGame}
+        onExit={() => setGameState((prev) => ({ ...prev, screen: "menu" }))}
+      />
+    );
   }
 
   return (
@@ -154,11 +223,13 @@ function App() {
       </div>
 
       <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full mb-8 overflow-hidden">
-        <div 
+        <div
           className="h-full bg-white transition-all duration-100"
           style={{
-            width: '100%',
-            animation: gameState.currentNote ? `shrink ${gameState.timeWindow}ms linear forwards` : 'none'
+            width: "100%",
+            animation: gameState.currentNote
+              ? `shrink ${gameState.timeWindow}ms linear forwards`
+              : "none",
           }}
         />
       </div>
@@ -168,7 +239,11 @@ function App() {
           <div
             key={key}
             className={`w-20 h-20 rounded-lg flex items-center justify-center text-2xl font-bold transition-all duration-200
-              ${gameState.currentNote?.key === key ? 'scale-110 ring-4 ring-white animate-pulse' : ''}
+              ${
+                gameState.currentNote?.key === key
+                  ? "scale-110 ring-4 ring-white animate-pulse"
+                  : ""
+              }
             `}
             style={{
               backgroundColor: note.color,

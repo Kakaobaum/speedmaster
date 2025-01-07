@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Music, ArrowLeft } from 'lucide-react';
-import { NOTES } from '../constants';
-import { useAudio } from '../hooks/useAudio';
+import React, { useEffect, useState } from "react";
+import { Music, ArrowLeft } from "lucide-react";
+import { NOTES } from "../constants";
+import { useAudio } from "../hooks/useAudio";
 
 interface TutorialProps {
   onComplete: () => void;
@@ -18,23 +18,27 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
   useEffect(() => {
     const steps = [
       {
-        message: "Welcome to the SpeedMaster tutorial! I'll teach you how to play. Press any key when you're ready to begin.",
+        message:
+          "Welcome to the SpeedMaster tutorial! I'll teach you how to play. Press any key when you're ready to begin.",
         action: null,
       },
       ...Object.entries(NOTES).map(([key, note]) => ({
-        message: `This is the ${note.name} note. Listen carefully.`,
+        message: `This is the ${note.name} note.`,
         action: () => {
           setTimeout(() => {
             playNote(key);
-            speak(`When you hear this sound, press the ${key} key. Press ${key} now to try it.`);
+            speak(
+              `When you hear this sound, press the ${key} key. Press ${key} now to try it.`
+            );
           }, 2000);
           return key;
         },
       })),
       {
-        message: "Excellent! You've learned all the notes. During the game, you'll need to press the correct key quickly when you hear each note. Press Space to start playing or Escape to return to the menu.",
+        message:
+          "Excellent! You've learned all the notes. During the game, you'll need to press the correct key quickly when you hear each note. Press Space to start playing or Escape to return to the menu.",
         action: null,
-      }
+      },
     ];
 
     const currentStep = steps[step];
@@ -65,9 +69,9 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
 
       // Last step - space starts game, escape exits
       if (step === Object.keys(NOTES).length + 1) {
-        if (key === ' ' || event.code === 'Space') {
+        if (key === " " || event.code === "Space") {
           onComplete();
-        } else if (key === 'ESCAPE') {
+        } else if (key === "ESCAPE") {
           onExit();
         }
         return;
@@ -79,17 +83,25 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
         speak("Correct! Well done!");
         setIsAnimating(true);
         setWaitingForInput(false);
-        
+
         setTimeout(() => {
           setIsAnimating(false);
-          setStep(prev => prev + 1);
+          setStep((prev) => prev + 1);
         }, 1500);
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [step, currentKey, waitingForInput, onComplete, onExit, speak, playCorrect]);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [
+    step,
+    currentKey,
+    waitingForInput,
+    onComplete,
+    onExit,
+    speak,
+    playCorrect,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-8">
@@ -109,8 +121,12 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
           <div
             key={key}
             className={`w-20 h-20 rounded-lg flex items-center justify-center text-2xl font-bold transition-all duration-200 
-              ${currentKey === key ? 'scale-110 ring-4 ring-white animate-pulse' : ''}
-              ${isAnimating && currentKey === key ? 'animate-press' : ''}`}
+              ${
+                currentKey === key
+                  ? "scale-110 ring-4 ring-white animate-pulse"
+                  : ""
+              }
+              ${isAnimating && currentKey === key ? "animate-press" : ""}`}
             style={{
               backgroundColor: note.color,
             }}

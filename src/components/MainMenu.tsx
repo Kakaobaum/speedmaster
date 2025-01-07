@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { Music, Play, BookOpen } from 'lucide-react';
-import { useAudio } from '../hooks/useAudio';
+import React, { useEffect } from "react";
+import { Music, Play, BookOpen } from "lucide-react";
+import { useAudio } from "../hooks/useAudio";
 
 interface MainMenuProps {
   onStartGame: () => void;
@@ -9,27 +9,29 @@ interface MainMenuProps {
 
 export function MainMenu({ onStartGame, onStartTutorial }: MainMenuProps) {
   const { speak } = useAudio();
+  const highScore = localStorage.getItem("speedmaster-highscore") || "0";
 
   useEffect(() => {
-    const welcomeMessage = 
+    const welcomeMessage =
       "Welcome to SpeedMaster! " +
+      `Your high score is ${highScore} points. ` +
       "Press the Space bar to start a new game. " +
       "Press T to start the tutorial and learn how to play. " +
       "Use the A, S, D, F, and G keys during the game to match the notes you hear.";
     speak(welcomeMessage);
-  }, [speak]);
+  }, [speak, highScore]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === 'Space' || event.key === ' ') {
+      if (event.code === "Space" || event.key === " ") {
         onStartGame();
-      } else if (event.key.toLowerCase() === 't') {
+      } else if (event.key.toLowerCase() === "t") {
         onStartTutorial();
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [onStartGame, onStartTutorial]);
 
   return (
@@ -38,6 +40,8 @@ export function MainMenu({ onStartGame, onStartTutorial }: MainMenuProps) {
         <Music className="w-16 h-16 text-white mr-4" />
         <h1 className="text-6xl font-bold text-white">SpeedMaster</h1>
       </div>
+
+      <p className="text-white text-xl mb-8">High Score: {highScore}</p>
 
       <div className="space-y-6">
         <button
