@@ -8,6 +8,6 @@ export const NOTES: Record<string, { frequency: number; color: string; name: str
 
 export const INITIAL_TIME_WINDOW = 3000; // 3 seconds
 export const MIN_TIME_WINDOW = 800; // Minimum time window in milliseconds
-export const TIME_WINDOW_DECREASE = 300; // How much to decrease time window per level
+export const TIME_WINDOW_DECREASE = 250; // How much to decrease time window per level
 export const POINTS_PER_NOTE = 10;
 export const LEVEL_THRESHOLD = 100; // Points needed to advance to next level
