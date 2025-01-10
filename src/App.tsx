@@ -13,7 +13,6 @@ import { MainMenu } from "./components/MainMenu";
 import { useAudio } from "./hooks/useAudio";
 import type { GameState } from "./types";
 
-
 const ENCOURAGEMENTS = [
   "Great job!",
   "You're on fire!",
@@ -84,25 +83,8 @@ function App() {
     });
   }, [playWrong]);
 
-  const startGame = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = undefined;
-    }
-    prevLevelRef.current = 1;
-    setGameState((prev) => ({
-      ...prev,
-      score: 0,
-      isPlaying: true,
-      timeWindow: INITIAL_TIME_WINDOW,
-      level: 1,
-      screen: "game",
-      currentNote: null,
-    }));
-  }, []);
-
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
+  const handleNotePress = useCallback(
+    (pressedKey: string) => {
       if (
         !gameState.isPlaying ||
         gameState.screen !== "game" ||
@@ -110,7 +92,7 @@ function App() {
       )
         return;
 
-      if (event.key.toUpperCase() === gameState.currentNote.key) {
+      if (pressedKey === gameState.currentNote.key) {
         if (timerRef.current) {
           clearTimeout(timerRef.current);
           timerRef.current = undefined;
@@ -123,19 +105,16 @@ function App() {
           MIN_TIME_WINDOW,
           INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
         );
-        
-        // Add random encouragement every few correct answers
+
+        if (newLevel > prevLevelRef.current) {
+          speak(`Level ${newLevel}! Speed increased!`);
+          prevLevelRef.current = newLevel;
+        }
         if (newScore % 30 === 0) {
           const randomEncouragement =
             ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
           speak(randomEncouragement);
         }
-        
-        if (newLevel > prevLevelRef.current) {
-          speak(`Level ${newLevel}! Speed increased!`);
-          prevLevelRef.current = newLevel;
-        }
-
         setGameState((prev) => ({
           ...prev,
           score: newScore,
@@ -157,6 +136,13 @@ function App() {
       endGame,
       speak,
     ]
+  );
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      handleNotePress(event.key.toUpperCase());
+    },
+    [handleNotePress]
   );
 
   useEffect(() => {
@@ -200,6 +186,23 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
+  const startGame = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = undefined;
+    }
+    prevLevelRef.current = 1;
+    setGameState((prev) => ({
+      ...prev,
+      score: 0,
+      isPlaying: true,
+      timeWindow: INITIAL_TIME_WINDOW,
+      level: 1,
+      screen: "game",
+      currentNote: null,
+    }));
+  }, []);
+
   if (gameState.screen === "menu") {
     return (
       <MainMenu
@@ -232,18 +235,20 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-8">
-      <div className="flex items-center mb-8">
-        <h1 className="text-4xl font-bold text-white">SpeedMaster</h1>
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
+      <div className="flex items-center mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-4xl font-bold text-white">
+          SpeedMaster
+        </h1>
       </div>
 
-      <div className="mb-8 text-white text-xl">
+      <div className="mb-4 sm:mb-8 text-white text-lg sm:text-xl">
         <p>Score: {gameState.score}</p>
         <p>Level: {gameState.level}</p>
         <p>Time Window: {(gameState.timeWindow / 1000).toFixed(1)}s</p>
       </div>
 
-      <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full mb-8 overflow-hidden">
+      <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full mb-4 sm:mb-8 overflow-hidden">
         <div
           className="h-full bg-white transition-all duration-100"
           style={{
@@ -255,23 +260,25 @@ function App() {
         />
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-lg">
         {Object.entries(NOTES).map(([key, note]) => (
-          <div
+          <button
             key={key}
-            className={`w-20 h-20 rounded-lg flex items-center justify-center text-2xl font-bold transition-all duration-200
+            onClick={() => handleNotePress(key)}
+            className={`aspect-square rounded-lg flex items-center justify-center text-xl sm:text-2xl font-bold transition-all duration-200 active:scale-95
               ${
                 gameState.currentNote?.key === key
                   ? "scale-110 ring-4 ring-white animate-pulse"
                   : ""
               }
+              focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50
             `}
             style={{
               backgroundColor: note.color,
             }}
           >
             {key}
-          </div>
+          </button>
         ))}
       </div>
     </div>

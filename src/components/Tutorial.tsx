@@ -15,20 +15,43 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [waitingForInput, setWaitingForInput] = useState(false);
 
+  const handleNotePress = (key: string) => {
+    if (step === 0) {
+      setStep(1);
+      return;
+    }
+
+    if (step === Object.keys(NOTES).length + 1) {
+      onComplete();
+      return;
+    }
+
+    if (waitingForInput && currentKey === key) {
+      playCorrect();
+      speak("Correct! Well done!");
+      setIsAnimating(true);
+      setWaitingForInput(false);
+
+      setTimeout(() => {
+        setIsAnimating(false);
+        setStep((prev) => prev + 1);
+      }, 1500);
+    }
+  };
+
   useEffect(() => {
     const steps = [
       {
-        message:
-          "Welcome to the SpeedMaster tutorial! I'll teach you how to play. Press any key when you're ready to begin.",
+        message: "Welcome to the SpeedMaster tutorial! Tap anywhere to begin.",
         action: null,
       },
       ...Object.entries(NOTES).map(([key, note]) => ({
-        message: `This is the ${note.name} note.`,
+        message: `This is the ${note.name} note. Listen carefully.`,
         action: () => {
           setTimeout(() => {
             playNote(key);
             speak(
-              `When you hear this sound, press the ${key} key. Press ${key} now to try it.`
+              `When you hear this sound, tap the ${key} button. Try it now.`
             );
           }, 2000);
           return key;
@@ -36,7 +59,7 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
       })),
       {
         message:
-          "Excellent! You've learned all the notes. During the game, you'll need to press the correct key quickly when you hear each note. Press Space to start playing or Escape to return to the menu.",
+          "Excellent! You've learned all the notes. During the game, you'll need to tap the correct button quickly when you hear each note. Tap Play to start playing or Menu to return to the menu.",
         action: null,
       },
     ];
@@ -60,80 +83,48 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase();
-
-      // First step - any key continues
-      if (step === 0) {
-        setStep(1);
-        return;
-      }
-
-      // Last step - space starts game, escape exits
-      if (step === Object.keys(NOTES).length + 1) {
-        if (key === " " || event.code === "Space") {
-          onComplete();
-        } else if (key === "ESCAPE") {
-          onExit();
-        }
-        return;
-      }
-
-      // Note learning steps
-      if (waitingForInput && currentKey === key) {
-        playCorrect();
-        speak("Correct! Well done!");
-        setIsAnimating(true);
-        setWaitingForInput(false);
-
-        setTimeout(() => {
-          setIsAnimating(false);
-          setStep((prev) => prev + 1);
-        }, 1500);
-      }
+      handleNotePress(key);
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [
-    step,
-    currentKey,
-    waitingForInput,
-    onComplete,
-    onExit,
-    speak,
-    playCorrect,
-  ]);
+  }, [step, currentKey, waitingForInput, onComplete, onExit]);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
       <button
         onClick={onExit}
-        className="absolute top-8 left-8 text-white flex items-center gap-2 hover:text-gray-300"
-        aria-label="Back to Menu, press Escape"
+        className="absolute top-4 sm:top-8 left-4 sm:left-8 text-white flex items-center gap-2 hover:text-gray-300 active:scale-95 transition-transform"
+        aria-label="Back to Menu"
       >
-        <ArrowLeft /> Back to Menu (Esc)
+        <ArrowLeft /> Back to Menu
       </button>
 
-      <Music className="w-16 h-16 text-white mb-8 animate-pulse" />
-      <h2 className="text-4xl font-bold text-white mb-12">Tutorial</h2>
+      <Music className="w-12 h-12 sm:w-16 sm:h-16 text-white mb-8 animate-pulse" />
+      <h2 className="text-3xl sm:text-4xl font-bold text-white mb-8 sm:mb-12">
+        Tutorial
+      </h2>
 
-      <div className="grid grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-lg">
         {Object.entries(NOTES).map(([key, note]) => (
-          <div
+          <button
             key={key}
-            className={`w-20 h-20 rounded-lg flex items-center justify-center text-2xl font-bold transition-all duration-200 
+            onClick={() => handleNotePress(key)}
+            className={`aspect-square rounded-lg flex items-center justify-center text-xl sm:text-2xl font-bold transition-all duration-200 
               ${
                 currentKey === key
                   ? "scale-110 ring-4 ring-white animate-pulse"
                   : ""
               }
-              ${isAnimating && currentKey === key ? "animate-press" : ""}`}
+              ${isAnimating && currentKey === key ? "animate-press" : ""}
+              active:scale-95 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50`}
             style={{
               backgroundColor: note.color,
             }}
-            aria-label={`${note.name} note, press ${key} key`}
+            aria-label={`${note.name} note`}
           >
             {key}
-          </div>
+          </button>
         ))}
       </div>
     </div>
