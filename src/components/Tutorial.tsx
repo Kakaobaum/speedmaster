@@ -1,45 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { Music, ArrowLeft } from "lucide-react";
-import { NOTES } from "../constants";
-import { useAudio } from "../hooks/useAudio";
+import { Music, ArrowLeft } from "lucide-react"; // Icons for visual elements
+import { NOTES } from "../constants"; // Notes used in the tutorial
+import { useAudio } from "../hooks/useAudio"; // Hook for audio functionalities
 
 interface TutorialProps {
-  onComplete: () => void;
-  onExit: () => void;
+  onComplete: () => void; // Function called when tutorial is complete
+  onExit: () => void; // Function called to exit the tutorial
 }
 
 export function Tutorial({ onComplete, onExit }: TutorialProps) {
-  const { speak, playNote, playCorrect } = useAudio();
-  const [currentKey, setCurrentKey] = useState<string | null>(null);
-  const [step, setStep] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [waitingForInput, setWaitingForInput] = useState(false);
+  const { speak, playNote, playCorrect } = useAudio(); // Access audio functions
+  const [currentKey, setCurrentKey] = useState<string | null>(null); // Current note key being taught
+  const [step, setStep] = useState(0); // Current tutorial step
+  const [isAnimating, setIsAnimating] = useState(false); // Animation state
+  const [waitingForInput, setWaitingForInput] = useState(false); // Input expectation state
 
   const handleNotePress = (key: string) => {
     if (step === 0) {
-      setStep(1);
+      setStep(1); // Start tutorial when any key is pressed
       return;
     }
 
     if (step === Object.keys(NOTES).length + 1) {
-      onComplete();
+      onComplete(); // Complete tutorial at the end
       return;
     }
 
     if (waitingForInput && currentKey === key) {
-      playCorrect();
-      speak("Correct! Well done!");
+      // Correct note was pressed
+      playCorrect(); // Play success sound
+      speak("Correct! Well done!"); // Congratulate the user
       setIsAnimating(true);
       setWaitingForInput(false);
 
       setTimeout(() => {
         setIsAnimating(false);
-        setStep((prev) => prev + 1);
+        setStep((prev) => prev + 1); // Move to next tutorial step
       }, 1500);
     }
   };
 
   useEffect(() => {
+    // Define tutorial steps
     const steps = [
       {
         message: "Welcome to the SpeedMaster tutorial! Tap anywhere to begin.",
@@ -54,7 +56,7 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
               `When you hear this sound, tap the ${key} button. Try it now.`
             );
           }, 2000);
-          return key;
+          return key; // Set the expected key for this step
         },
       })),
       {
@@ -66,9 +68,9 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
 
     const currentStep = steps[step];
     if (currentStep) {
-      speak(currentStep.message);
+      speak(currentStep.message); // Announce step instructions
       if (currentStep.action) {
-        const key = currentStep.action();
+        const key = currentStep.action(); // Perform step-specific action
         setCurrentKey(key);
         setWaitingForInput(true);
       } else {
@@ -76,18 +78,19 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
         setWaitingForInput(false);
       }
     } else {
-      onComplete();
+      onComplete(); // End tutorial if no steps are left
     }
   }, [step, speak, playNote, onComplete]);
 
   useEffect(() => {
+    // Handle keyboard input for notes
     const handleKeyPress = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase();
       handleNotePress(key);
     };
 
     window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress); // Cleanup listener
   }, [step, currentKey, waitingForInput, onComplete, onExit]);
 
   return (
@@ -97,14 +100,16 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
         className="absolute top-4 sm:top-8 left-4 sm:left-8 text-white flex items-center gap-2 hover:text-gray-300 active:scale-95 transition-transform"
         aria-label="Back to Menu"
       >
-        <ArrowLeft /> Back to Menu
+        <ArrowLeft /> Back to Menu {/* Exit tutorial button */}
       </button>
 
+      {/* Tutorial logo and header */}
       <Music className="w-12 h-12 sm:w-16 sm:h-16 text-white mb-8 animate-pulse" />
       <h2 className="text-3xl sm:text-4xl font-bold text-white mb-8 sm:mb-12">
         Tutorial
       </h2>
 
+      {/* Buttons representing notes */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-lg">
         {Object.entries(NOTES).map(([key, note]) => (
           <button

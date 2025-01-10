@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+// Import constants, components, and utilities
 import {
   NOTES,
   INITIAL_TIME_WINDOW,
@@ -13,6 +14,7 @@ import { MainMenu } from "./components/MainMenu";
 import { useAudio } from "./hooks/useAudio";
 import type { GameState } from "./types";
 
+// List of motivational messages shown to players during gameplay
 const ENCOURAGEMENTS = [
   "Great job!",
   "You're on fire!",
@@ -26,6 +28,7 @@ const ENCOURAGEMENTS = [
   "Outstanding!",
 ];
 
+// Retrieve the high score from localStorage, or return 0 if unavailable
 const getInitialHighScore = () => {
   try {
     const saved = localStorage.getItem("speedmaster-highscore");
@@ -37,6 +40,7 @@ const getInitialHighScore = () => {
 };
 
 function App() {
+  // Define the game state and refs
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     currentNote: null,
@@ -51,6 +55,7 @@ function App() {
   const prevLevelRef = useRef(1);
   const { playNote, playCorrect, playWrong, speak } = useAudio();
 
+  // Generate a random note for the player
   const generateNote = useCallback(() => {
     const keys = Object.keys(NOTES);
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
@@ -60,19 +65,23 @@ function App() {
     };
   }, []);
 
+  // Ends the current game session
   const endGame = useCallback(() => {
+    // Clear any active timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = undefined;
     }
-    playWrong();
+    playWrong(); // Play a sound indicating a wrong move
     setGameState((prev) => {
+      // Update the high score if needed
       const newHighScore = Math.max(prev.score, prev.highScore);
       try {
         localStorage.setItem("speedmaster-highscore", newHighScore.toString());
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
+      // Transition to the game over screen
       return {
         ...prev,
         isPlaying: false,
@@ -83,8 +92,10 @@ function App() {
     });
   }, [playWrong]);
 
+  // Handles user pressing a note key
   const handleNotePress = useCallback(
     (pressedKey: string) => {
+      // Ignore key presses if the game is not active
       if (
         !gameState.isPlaying ||
         gameState.screen !== "game" ||
@@ -93,12 +104,13 @@ function App() {
         return;
 
       if (pressedKey === gameState.currentNote.key) {
+        // Player pressed the correct key
         if (timerRef.current) {
-          clearTimeout(timerRef.current);
+          clearTimeout(timerRef.current); // Reset the timer
           timerRef.current = undefined;
         }
 
-        playCorrect();
+        playCorrect(); // Play a sound for correct input
         const newScore = gameState.score + POINTS_PER_NOTE;
         const newLevel = Math.floor(newScore / LEVEL_THRESHOLD) + 1;
         const newTimeWindow = Math.max(
@@ -106,15 +118,18 @@ function App() {
           INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
         );
 
+        // Notify the player about level-up events
         if (newLevel > prevLevelRef.current) {
           speak(`Level ${newLevel}! Speed increased!`);
           prevLevelRef.current = newLevel;
         }
         if (newScore % 30 === 0) {
+          // Show motivational messages
           const randomEncouragement =
             ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
           speak(randomEncouragement);
         }
+        // Update game state with new progress
         setGameState((prev) => ({
           ...prev,
           score: newScore,
@@ -124,7 +139,7 @@ function App() {
           currentNote: null,
         }));
       } else {
-        endGame();
+        endGame(); // End game on incorrect input
       }
     },
     [
@@ -138,6 +153,7 @@ function App() {
     ]
   );
 
+  // Handles keyboard input for note presses
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       handleNotePress(event.key.toUpperCase());
@@ -145,6 +161,7 @@ function App() {
     [handleNotePress]
   );
 
+  // Generate notes and manage game logic
   useEffect(() => {
     if (
       gameState.isPlaying &&
@@ -161,6 +178,7 @@ function App() {
       setGameState((prev) => ({ ...prev, currentNote: note }));
       playNote(note.key);
 
+      // Set a timer to end the game if the player takes too long
       timerRef.current = setTimeout(endGame, gameState.timeWindow);
     }
   }, [
@@ -173,6 +191,7 @@ function App() {
     endGame,
   ]);
 
+  // Clean up on component unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -181,11 +200,13 @@ function App() {
     };
   }, []);
 
+  // Listen for keyboard events during the game
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
+  // Start a new game session
   const startGame = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -203,6 +224,7 @@ function App() {
     }));
   }, []);
 
+  // Render different screens based on the game state
   if (gameState.screen === "menu") {
     return (
       <MainMenu
@@ -234,6 +256,7 @@ function App() {
     );
   }
 
+  // Main game UI for active gameplay
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="flex items-center mb-4 sm:mb-8">
@@ -242,12 +265,14 @@ function App() {
         </h1>
       </div>
 
+      {/* Display the player's score, level, and time window */}
       <div className="mb-4 sm:mb-8 text-white text-lg sm:text-xl">
         <p>Score: {gameState.score}</p>
         <p>Level: {gameState.level}</p>
         <p>Time Window: {(gameState.timeWindow / 1000).toFixed(1)}s</p>
       </div>
 
+      {/* Animated timer bar */}
       <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full mb-4 sm:mb-8 overflow-hidden">
         <div
           className="h-full bg-white transition-all duration-100"
@@ -260,6 +285,7 @@ function App() {
         />
       </div>
 
+      {/* Note buttons for gameplay */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-lg">
         {Object.entries(NOTES).map(([key, note]) => (
           <button
