@@ -74,6 +74,12 @@ SpeedMaster is a audio-based fast paced game designed to provide an engaging and
    ```
 2. Open your browser and navigate to the created link.
 
+
+### **Buildung the app**
+   ```bash
+   npm run build
+   ```
+
 ---
 
 ## **Deployment**
