@@ -3,7 +3,7 @@
 
 ---
 
-# **SpeedMaster - A Rhythm Game for the Visually Impaired**
+# **SpeedMaster - A quick reaction game for the Visually Impaired**
 
 SpeedMaster is a audio-based fast paced game designed to provide an engaging and accessible experience for visually impaired players. The game replaces traditional visual cues with audio feedback, allowing players to rely entirely on sound and keyboard controls.
 
@@ -24,10 +24,14 @@ SpeedMaster is a audio-based fast paced game designed to provide an engaging and
 
 ### **User Interface**
 - Fully keyboard navigable.
+- Touchscreen
 
 ### **Deployment**
 - Live and accessible via web browsers.
 - Deployed on Netlify for seamless access.
+
+The game is deployed on **Netlify**. Visit the live version here(also mobile-friendly):  
+[Live Game URL](https://gorgeous-conkies-527660.netlify.app)
 
 ---
 
@@ -79,13 +83,6 @@ SpeedMaster is a audio-based fast paced game designed to provide an engaging and
    ```bash
    npm run build
    ```
-
----
-
-## **Deployment**
-
-The game is deployed on **Netlify**. Visit the live version here:  
-[Live Game URL](https://gorgeous-conkies-527660.netlify.app)
 
 ---
 
@@ -146,6 +143,6 @@ We welcome contributions! If you'd like to enhance SpeedMaster:
 - **React**: For the foundation of the game.
 - **Netlify**: For providing an easy deployment platform.
 - **github copilot**
-- **Dominic Dolezal**: For supervisiong us
+- **Dominic Dolezal**: For supervising us
 
 ---
