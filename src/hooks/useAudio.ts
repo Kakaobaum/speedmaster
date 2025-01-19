@@ -9,9 +9,31 @@ export function useAudio() {
   const wrongSynthRef = useRef<Tone.Synth>();
   const speakingRef = useRef(false); // To track if a speech operation is ongoing
 
-  // Initialize the main synthesizer if not already created
+  // Initialize the "main" synthesizer with water drop-like settings
   if (!synthRef.current) {
-    synthRef.current = new Tone.Synth().toDestination();
+    const reverb = new Tone.Reverb({ decay: 1.5, wet: 0.4 }).toDestination();
+    const highpass = new Tone.Filter({
+      type: "highpass",
+      frequency: 100,
+    }).toDestination();
+
+    synthRef.current = new Tone.MembraneSynth({
+      pitchDecay: 0.01, // Short decay for percussive feel
+      octaves: 2, // Higher pitch decay range
+      oscillator: {
+        type: "sine", // Smooth tone for bongos
+      },
+      envelope: {
+        attack: 0.001, // Instant attack for a "hit"
+        decay: 0.2, // Short decay
+        sustain: 0, // No sustain for percussive sound
+        release: 0.1, // Quick release
+      },
+    })
+      .connect(highpass)
+      .connect(reverb);
+
+    console.log("Bongo bongo", synthRef.current);
   }
 
   // Initialize the "correct" synthesizer with specific envelope settings
