@@ -2,11 +2,11 @@ export const NOTES: Record<
   string,
   { frequency: number; color: string; name: string }
 > = {
-  A: { frequency: 220.0, color: "#FF0000", name: "A red" }, // Red
-  S: { frequency: 280.88, color: "#00FF00", name: "S green" }, // Green
-  D: { frequency: 340.25, color: "#0000FF", name: "D blue" }, // Blue
-  F: { frequency: 400.33, color: "#FFD700", name: "F yellow" }, // Yellow
-  G: { frequency: 440.25, color: "#FF69B4", name: "G pink" }, // Pink
+  A: { frequency: 440.00, color: "#FF0000", name: "A red" }, // Red
+  S: { frequency: 493.88, color: "#00FF00", name: "S green" }, // Green
+  D: { frequency: 523.25, color: "#0000FF", name: "D blue" }, // Blue
+  F: { frequency: 587.33, color: "#FFD700", name: "F yellow" }, // Yellow
+  G: { frequency: 659.25, color: "#FF69B4", name: "G pink" }, // Pink
 };
 
 export const INITIAL_TIME_WINDOW = 3000; // 3 seconds
