@@ -38,38 +38,41 @@ export function useAudio() {
   }
 -- Bongo sound */
    // Initialize the "main" synthesizer with futuristic settings
- if (!synthRef.current) {
-    // Echo effect for the railgun
-    const echo = new Tone.FeedbackDelay({
-      delayTime: "8n", // Rhythmic echo
-      feedback: 0.4, // Controls echo strength
-      wet: 0.5, // Moderate echo presence
+  if (!synthRef.current) {
+    // Filter modulation for dynamic texture
+    const filter = new Tone.Filter({
+      type: "lowpass",
+      frequency: 800, // Starting cutoff frequency
+      resonance: 5, // Adds sharpness to the filter
     }).toDestination();
 
-    // Subtle reverb for spatial depth
+    // Delay for spatial rhythmic effect
+    const delay = new Tone.FeedbackDelay({
+      delayTime: "16n", // Tempo-synced delay
+      feedback: 0.4, // Subtle rhythmic repeats
+      wet: 0.5, // Moderate presence
+    }).connect(filter);
+
+    // Reverb for atmospheric depth
     const reverb = new Tone.Reverb({
-      decay: 2.5, // Long reverb tail
-      wet: 0.3, // Subtle application
-    }).toDestination();
+      decay: 2.5, // Long decay for spacey feel
+      wet: 0.3, // Blended presence
+    }).connect(delay);
 
-    // Railgun synth setup
-    synthRef.current = new Tone.MembraneSynth({
-      pitchDecay: 0.05, // Adds a slight drop for impact
-      octaves: 1, // Minimal pitch range for clarity
+    // Goa/Psytrance synth setup
+    synthRef.current = new Tone.Synth({
       oscillator: {
-        type: "sine", // Clean, low-frequency sound
+        type: "sawtooth", // Bright and edgy sound
       },
       envelope: {
-        attack: 0.01, // Fast, punchy start
-        decay: 0.2, // Short decay for a tight sound
-        sustain: 0.2, // Keeps the sound slightly present
-        release: 0.5, // Medium release for a lingering effect
+        attack: 0.005, // Quick snappy attack
+        decay: 0.3, // Moderate decay for plucky feel
+        sustain: 0.1, // Keeps some presence
+        release: 0.2, // Short release for rhythmic clarity
       },
-    })
-      .connect(echo)
-      .connect(reverb);
+    }).connect(reverb);
 
-    console.log("Railgun synth initialized with clear, low-pitch sound.");
+    console.log("key sound initialized.");
   }
 
   
