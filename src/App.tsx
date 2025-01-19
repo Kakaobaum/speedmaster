@@ -56,6 +56,7 @@ function App() {
   );
   // Make the audio loop indefinitely so it restarts once it ends
   backgroundMusicRef.current.loop = true;
+  backgroundMusicRef.current.volume = 0.2;
 
   /**
    * The main game state.
