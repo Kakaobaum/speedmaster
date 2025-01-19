@@ -49,9 +49,10 @@ function App() {
    * https://audiocdn.epidemicsound.com/ES_ITUNES/6EHqvP_Nocturne/ES_Nocturne.mp3 - guitar
    * https://audiocdn.epidemicsound.com/lqmp3/01HXV7VRJ2AZFK25CF4M6F6WC2.mp3 - ocean waves
    * https://cdn.pixabay.com/audio/2025/01/13/audio_b4c259c69e.mp3 - beta waves
+   * https://audiocdn.epidemicsound.com/ES_ITUNES/Chronicles%20Of%20Humming/ES_Chronicles%20Of%20Humming.mp3 - house beat
    */
   const backgroundMusicRef = useRef<HTMLAudioElement>(
-    new Audio("https://audiocdn.epidemicsound.com/ES_ITUNES/6EHqvP_Nocturne/ES_Nocturne.mp3")
+    new Audio("https://audiocdn.epidemicsound.com/ES_ITUNES/Chronicles%20Of%20Humming/ES_Chronicles%20Of%20Humming.mp3")
   );
   // Make the audio loop indefinitely so it restarts once it ends
   backgroundMusicRef.current.loop = true;
