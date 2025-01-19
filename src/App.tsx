@@ -14,7 +14,7 @@ import { MainMenu } from "./components/MainMenu";
 import { useAudio } from "./hooks/useAudio";
 import type { GameState } from "./types";
 
-// List of motivational messages shown to players during gameplay
+// Array of positive feedback messages that can be spoken during gameplay
 const ENCOURAGEMENTS = [
   "Great job!",
   "You're on fire!",
@@ -28,7 +28,10 @@ const ENCOURAGEMENTS = [
   "Outstanding!",
 ];
 
-// Retrieve the high score from localStorage, or return 0 if unavailable
+/**
+ * Attempts to retrieve the saved high score from localStorage.
+ * Returns 0 if no score is found or if there's an error.
+ */
 const getInitialHighScore = () => {
   try {
     const saved = localStorage.getItem("speedmaster-highscore");
@@ -40,7 +43,31 @@ const getInitialHighScore = () => {
 };
 
 function App() {
-  // Define the game state and refs
+  /**
+   * A ref to manage background music. Using `useRef` ensures
+   * that the same HTMLAudioElement persists across renders.
+   * https://audiocdn.epidemicsound.com/ES_ITUNES/6EHqvP_Nocturne/ES_Nocturne.mp3 - guitar
+   * https://audiocdn.epidemicsound.com/lqmp3/01HXV7VRJ2AZFK25CF4M6F6WC2.mp3 - ocean waves
+   * https://cdn.pixabay.com/audio/2025/01/13/audio_b4c259c69e.mp3 - beta waves
+   * https://audiocdn.epidemicsound.com/ES_ITUNES/Chronicles%20Of%20Humming/ES_Chronicles%20Of%20Humming.mp3 - house beat
+   */
+  const backgroundMusicRef = useRef<HTMLAudioElement>(
+    new Audio("https://audiocdn.epidemicsound.com/ES_ITUNES/Chronicles%20Of%20Humming/ES_Chronicles%20Of%20Humming.mp3")
+  );
+  // Make the audio loop indefinitely so it restarts once it ends
+  backgroundMusicRef.current.loop = true;
+  backgroundMusicRef.current.volume = 0.2;
+
+  /**
+   * The main game state.
+   *  - score: current score
+   *  - currentNote: the note the user must press
+   *  - isPlaying: whether the game is currently active
+   *  - timeWindow: how long the user has to press the correct note
+   *  - highScore: top score retrieved from localStorage
+   *  - screen: which screen ("menu", "tutorial", "game", "gameover")
+   *  - level: current user level, used to adjust difficulty
+   */
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
     currentNote: null,
@@ -51,11 +78,18 @@ function App() {
     level: 1,
   });
 
+  // A ref to hold the current timer so we can clear it when needed
   const timerRef = useRef<NodeJS.Timeout>();
+  // A ref to remember the previous level so we know when to announce a level up
   const prevLevelRef = useRef(1);
+
+  // Custom hook that provides audio playback functions
   const { playNote, playCorrect, playWrong, speak } = useAudio();
 
-  // Generate a random note for the player
+  /**
+   * Picks a random note from the list of NOTES. Each note
+   * has a 'color' and a 'key' property associated with it.
+   */
   const generateNote = useCallback(() => {
     const keys = Object.keys(NOTES);
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
@@ -65,23 +99,40 @@ function App() {
     };
   }, []);
 
-  // Ends the current game session
+  /**
+   * Ends the game:
+   *  1. Clears the current timer
+   *  2. Plays a "wrong" sound
+   *  3. Pauses and resets the background music
+   *  4. Updates high score if necessary
+   *  5. Transitions to "gameover" screen
+   */
   const endGame = useCallback(() => {
-    // Clear any active timers
+    // Clear any active timer
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = undefined;
     }
-    playWrong(); // Play a sound indicating a wrong move
+
+    // Play the wrong sound to indicate the user made a mistake
+    playWrong();
+
+    // Pause and reset background music
+    backgroundMusicRef.current.pause();
+    backgroundMusicRef.current.currentTime = 0;
+
+    // Update game state to show the Game Over screen
     setGameState((prev) => {
-      // Update the high score if needed
+      // Calculate new high score if the player did better than before
       const newHighScore = Math.max(prev.score, prev.highScore);
+      // Attempt to persist the new high score in localStorage
       try {
         localStorage.setItem("speedmaster-highscore", newHighScore.toString());
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
-      // Transition to the game over screen
+
+      // Return the updated state
       return {
         ...prev,
         isPlaying: false,
@@ -92,10 +143,14 @@ function App() {
     });
   }, [playWrong]);
 
-  // Handles user pressing a note key
+  /**
+   * Handles logic when a user presses a note.
+   *  - If it's correct, increment score, manage level and time window, etc.
+   *  - If it's wrong, end the game.
+   */
   const handleNotePress = useCallback(
     (pressedKey: string) => {
-      // Ignore key presses if the game is not active
+      // If the game isn't active or we don't have a current note, ignore presses
       if (
         !gameState.isPlaying ||
         gameState.screen !== "game" ||
@@ -103,43 +158,52 @@ function App() {
       )
         return;
 
+      // Check if the user pressed the correct note
       if (pressedKey === gameState.currentNote.key) {
-        // Player pressed the correct key
+        // Clear the timer to avoid losing for inactivity
         if (timerRef.current) {
-          clearTimeout(timerRef.current); // Reset the timer
+          clearTimeout(timerRef.current);
           timerRef.current = undefined;
         }
 
-        playCorrect(); // Play a sound for correct input
+        // Play the "correct" sound
+        playCorrect();
+
+        // Calculate the new score
         const newScore = gameState.score + POINTS_PER_NOTE;
+        // Determine if the player has leveled up
         const newLevel = Math.floor(newScore / LEVEL_THRESHOLD) + 1;
+        // Decrease time window as levels go up (but not below MIN_TIME_WINDOW)
         const newTimeWindow = Math.max(
           MIN_TIME_WINDOW,
           INITIAL_TIME_WINDOW - (newLevel - 1) * TIME_WINDOW_DECREASE
         );
 
-        // Notify the player about level-up events
+        // If the player has gained a level, let them know via text-to-speech
         if (newLevel > prevLevelRef.current) {
           speak(`Level ${newLevel}! Speed increased!`);
           prevLevelRef.current = newLevel;
         }
-        if (newScore % 30 === 0) {
-          // Show motivational messages
+
+        // Every 30 points, provide a random encouragement message
+        if (newScore % 60 === 0) {
           const randomEncouragement =
             ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
           speak(randomEncouragement);
         }
-        // Update game state with new progress
+
+        // Update the game state with the new score, level, etc.
         setGameState((prev) => ({
           ...prev,
           score: newScore,
           level: newLevel,
           timeWindow: newTimeWindow,
           highScore: Math.max(prev.highScore, newScore),
-          currentNote: null,
+          currentNote: null, // This will trigger the next note to be generated
         }));
       } else {
-        endGame(); // End game on incorrect input
+        // If the user pressed the wrong note, end the game
+        endGame();
       }
     },
     [
@@ -153,7 +217,10 @@ function App() {
     ]
   );
 
-  // Handles keyboard input for note presses
+  /**
+   * Converts keyboard events to uppercase strings and
+   * passes them to 'handleNotePress'.
+   */
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       handleNotePress(event.key.toUpperCase());
@@ -161,24 +228,37 @@ function App() {
     [handleNotePress]
   );
 
-  // Generate notes and manage game logic
+  /**
+   * Whenever a new note is needed (e.g., the old one was pressed or
+   * right after starting the game), generate a new one and set a timer.
+   * If the user doesn't press the correct note in time, we end the game.
+   */
   useEffect(() => {
+    // Only generate a new note if:
+    //  1. The game is playing
+    //  2. We are on the game screen
+    //  3. We don't currently have a note
     if (
       gameState.isPlaying &&
       gameState.screen === "game" &&
       !gameState.currentNote
     ) {
+      // Create a random note from our NOTES list
       const note = generateNote();
 
+      // Clear any existing timers
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = undefined;
       }
 
+      // Update the game state with this new note
       setGameState((prev) => ({ ...prev, currentNote: note }));
+
+      // Play the note (this could be a beep or some other short sound)
       playNote(note.key);
 
-      // Set a timer to end the game if the player takes too long
+      // Set a timer that ends the game if the user does not press in time
       timerRef.current = setTimeout(endGame, gameState.timeWindow);
     }
   }, [
@@ -191,28 +271,52 @@ function App() {
     endGame,
   ]);
 
-  // Clean up on component unmount
+  /**
+   * Cleanup: on component unmount, clear any lingering timer
+   * and pause background music to avoid memory leaks.
+   */
   useEffect(() => {
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
+      backgroundMusicRef.current.pause();
     };
   }, []);
 
-  // Listen for keyboard events during the game
+  /**
+   * Attach our keyboard event listener for the duration of the component’s life.
+   * The listener will pass key presses to handleKeyPress, which decides what to do.
+   */
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
-  // Start a new game session
+  /**
+   * Start a new game session:
+   *  1. Clear any leftover timers
+   *  2. Reset level reference
+   *  3. Play background music
+   *  4. Reset the game state to default for a fresh run
+   */
   const startGame = useCallback(() => {
+    // Clear existing timer
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = undefined;
     }
+
+    // Reset the prevLevelRef
     prevLevelRef.current = 1;
+
+    // Attempt to play the background music from the start
+    backgroundMusicRef.current.currentTime = 0;
+    backgroundMusicRef.current
+      .play()
+      .catch((err) => console.warn("Autoplay failed:", err));
+
+    // Reset the game state
     setGameState((prev) => ({
       ...prev,
       score: 0,
@@ -220,11 +324,17 @@ function App() {
       timeWindow: INITIAL_TIME_WINDOW,
       level: 1,
       screen: "game",
-      currentNote: null,
+      currentNote: null, // Will be generated in useEffect
     }));
   }, []);
 
-  // Render different screens based on the game state
+  /**
+   * Render different screens based on 'gameState.screen':
+   *  - "menu" -> MainMenu
+   *  - "tutorial" -> Tutorial
+   *  - "gameover" -> GameOver
+   *  - Otherwise, render the in-game UI
+   */
   if (gameState.screen === "menu") {
     return (
       <MainMenu
@@ -256,23 +366,27 @@ function App() {
     );
   }
 
-  // Main game UI for active gameplay
+  /**
+   * If none of the above screens match, we're in the actual game screen.
+   * Render the gameplay UI (score, timer bar, note buttons).
+   */
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
+      {/* Title at the top */}
       <div className="flex items-center mb-4 sm:mb-8">
         <h1 className="text-2xl sm:text-4xl font-bold text-white">
           SpeedMaster
         </h1>
       </div>
 
-      {/* Display the player's score, level, and time window */}
+      {/* Display some current stats: score, level, time window */}
       <div className="mb-4 sm:mb-8 text-white text-lg sm:text-xl">
         <p>Score: {gameState.score}</p>
         <p>Level: {gameState.level}</p>
         <p>Time Window: {(gameState.timeWindow / 1000).toFixed(1)}s</p>
       </div>
 
-      {/* Animated timer bar */}
+      {/* The shrinking progress bar that visually represents time left */}
       <div className="w-full max-w-lg h-2 bg-gray-700 rounded-full mb-4 sm:mb-8 overflow-hidden">
         <div
           className="h-full bg-white transition-all duration-100"
@@ -285,7 +399,7 @@ function App() {
         />
       </div>
 
-      {/* Note buttons for gameplay */}
+      {/* The note buttons that the user can click or tap (mirroring keyboard input) */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-lg">
         {Object.entries(NOTES).map(([key, note]) => (
           <button
