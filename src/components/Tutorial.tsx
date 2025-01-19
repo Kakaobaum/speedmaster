@@ -48,20 +48,20 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
         action: null,
       },
       ...Object.entries(NOTES).map(([key, note]) => ({
-        message: `This is the ${note.name} note. Listen carefully.`,
+        message: `This is the ${note.name} note. `,
         action: () => {
           setTimeout(() => {
             playNote(key);
             speak(
-              `When you hear this sound, tap the ${key} button. Try it now.`
+              `When you hear this sound, tap the ${key} button. `
             );
-          }, 2000);
+          }, 3000);
           return key; // Set the expected key for this step
         },
       })),
       {
         message:
-          "Excellent! You've learned all the notes. During the game, you'll need to tap the correct button quickly when you hear each note. Tap Play to start playing or Menu to return to the menu.",
+          "Excellent! During the game, you'll need to tap the correct key when you hear each note. Tap spacebar to start playing or escape to return to the menu.",
         action: null,
       },
     ];
