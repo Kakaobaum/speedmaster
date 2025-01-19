@@ -9,7 +9,8 @@ export function useAudio() {
   const wrongSynthRef = useRef<Tone.Synth>();
   const speakingRef = useRef(false); // To track if a speech operation is ongoing
 
-  // Initialize the "main" synthesizer with water drop-like settings
+  // Initialize the "main" synthesizer with bongo-like settings
+  /* -- Bongo sound --
   if (!synthRef.current) {
     const reverb = new Tone.Reverb({ decay: 1.5, wet: 0.4 }).toDestination();
     const highpass = new Tone.Filter({
@@ -35,7 +36,43 @@ export function useAudio() {
 
     console.log("Bongo bongo", synthRef.current);
   }
+-- Bongo sound */
+   // Initialize the "main" synthesizer with futuristic settings
+ if (!synthRef.current) {
+    // Echo effect for the railgun
+    const echo = new Tone.FeedbackDelay({
+      delayTime: "8n", // Rhythmic echo
+      feedback: 0.4, // Controls echo strength
+      wet: 0.5, // Moderate echo presence
+    }).toDestination();
 
+    // Subtle reverb for spatial depth
+    const reverb = new Tone.Reverb({
+      decay: 2.5, // Long reverb tail
+      wet: 0.3, // Subtle application
+    }).toDestination();
+
+    // Railgun synth setup
+    synthRef.current = new Tone.MembraneSynth({
+      pitchDecay: 0.05, // Adds a slight drop for impact
+      octaves: 1, // Minimal pitch range for clarity
+      oscillator: {
+        type: "sine", // Clean, low-frequency sound
+      },
+      envelope: {
+        attack: 0.01, // Fast, punchy start
+        decay: 0.2, // Short decay for a tight sound
+        sustain: 0.2, // Keeps the sound slightly present
+        release: 0.5, // Medium release for a lingering effect
+      },
+    })
+      .connect(echo)
+      .connect(reverb);
+
+    console.log("Railgun synth initialized with clear, low-pitch sound.");
+  }
+
+  
   // Initialize the "correct" synthesizer with specific envelope settings
   if (!correctSynthRef.current) {
     correctSynthRef.current = new Tone.Synth({
