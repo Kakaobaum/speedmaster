@@ -10,7 +10,7 @@ export function useAudio() {
   const speakingRef = useRef(false); // To track if a speech operation is ongoing
 
   // Initialize the "main" synthesizer with bongo-like settings
-  /* -- Bongo sound --
+  
   if (!synthRef.current) {
     const reverb = new Tone.Reverb({ decay: 1.5, wet: 0.4 }).toDestination();
     const highpass = new Tone.Filter({
@@ -36,56 +36,6 @@ export function useAudio() {
 
     console.log("Bongo bongo", synthRef.current);
   }
--- Bongo sound */
-   // Initialize the "main" synthesizer with futuristic settings
-  if (!synthRef.current) {
-    // Filter modulation for dynamic texture
-    const filter = new Tone.Filter({
-      type: "lowpass",
-      frequency: 800, // Starting cutoff frequency
-      resonance: 5, // Adds sharpness to the filter
-    }).toDestination();
-
-    // Delay for spatial rhythmic effect
-    const delay = new Tone.FeedbackDelay({
-      delayTime: "16n", // Tempo-synced delay
-      feedback: 0.4, // Subtle rhythmic repeats
-      wet: 0.5, // Moderate presence
-    }).connect(filter);
-
-    // Reverb for atmospheric depth
-    const reverb = new Tone.Reverb({
-      decay: 2.5, // Long decay for spacey feel
-      wet: 0.3, // Blended presence
-    }).connect(delay);
-
-    // Goa/Psytrance synth setup
-    synthRef.current = new Tone.Synth({
-      oscillator: {
-        type: "sawtooth", // Bright and edgy sound
-      },
-      envelope: {
-        attack: 0.005, // Quick snappy attack
-        decay: 0.3, // Moderate decay for plucky feel
-        sustain: 0.1, // Keeps some presence
-        release: 0.2, // Short release for rhythmic clarity
-      },
-    }).connect(reverb);
-    synthRef.current = new Tone.Synth({
-  oscillator: {
-    type: "sawtooth", // Goa/Psytrance tone
-  },
-  envelope: {
-    attack: 0.005,
-    decay: 0.3,
-    sustain: 0.1,
-    release: 0.2,
-  },
-}).connect(reverb);
-
-    console.log("key sound initialized.");
-  }
-
   
   // Initialize the "correct" synthesizer with specific envelope settings
   if (!correctSynthRef.current) {
