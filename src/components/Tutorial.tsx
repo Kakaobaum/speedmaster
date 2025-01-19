@@ -49,11 +49,15 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
   },
   ...Object.entries(NOTES).map(([key, note]) => ({
     message: `This is the ${note.name} note.`,
-    action: async () => {
-      await delay(1000); // Wait 1000ms before playing the note
-      playNote(key); // Play the note
-      await delay(1000); // Wait 1000ms after playing the note
-      speak(`tap the ${key} key, when you hear this sound. Please press the ${key} key`);
+    action: () => {
+      setTimeout(() => {
+        // Wait 1000ms before playing the note
+        playNote(key); // Play the note
+        setTimeout(() => {
+          // Wait 1000ms after playing the note before speaking
+          speak(`When you hear this sound, tap the ${key} button.`);
+        }, 1000); // 1000ms delay after playNote
+      }, 1000); // 1000ms delay before playNote
       return key; // Set the expected key for this step
     },
   })),
