@@ -71,6 +71,17 @@ export function useAudio() {
         release: 0.2, // Short release for rhythmic clarity
       },
     }).connect(reverb);
+    synthRef.current = new Tone.Synth({
+  oscillator: {
+    type: "sawtooth", // Goa/Psytrance tone
+  },
+  envelope: {
+    attack: 0.005,
+    decay: 0.3,
+    sustain: 0.1,
+    release: 0.2,
+  },
+}).connect(reverb);
 
     console.log("key sound initialized.");
   }
@@ -116,7 +127,7 @@ export function useAudio() {
     await Tone.start(); // Start the Tone.js audio context
     const frequency = NOTES[note].frequency; // Get the frequency of the note
     await new Promise((resolve) => setTimeout(resolve, 50)); // Small delay to ensure playback
-    synthRef.current?.triggerAttackRelease(frequency, "8n"); // Play the note for an eighth note duration
+    synthRef.current?.triggerAttackRelease(frequency, "16n"); // Play the note for an eighth note duration
   }, []);
 
   // Play a short "correct" sound effect
