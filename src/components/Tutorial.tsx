@@ -42,23 +42,22 @@ export function Tutorial({ onComplete, onExit }: TutorialProps) {
 
   useEffect(() => {
     // Define tutorial steps
-    const steps = [
-      {
-        message: "Welcome to the SpeedMaster tutorial! Tap anywhere to begin.",
-        action: null,
-      },
-      ...Object.entries(NOTES).map(([key, note]) => ({
-        message: `This is the ${note.name} note. `,
-        action: () => {
-          setTimeout(() => {
-            playNote(key);
-            speak(
-              `When you hear this sound, tap the ${key} button. `
-            );
-          }, 3000);
-          return key; // Set the expected key for this step
-        },
-      })),
+ const steps = [
+  {
+    message: "Welcome to the SpeedMaster tutorial! Tap anywhere to begin.",
+    action: null,
+  },
+  ...Object.entries(NOTES).map(([key, note]) => ({
+    message: `This is the ${note.name} note.`,
+    action: async () => {
+      await delay(1000); // Wait 1000ms before playing the note
+      playNote(key); // Play the note
+      await delay(1000); // Wait 1000ms after playing the note
+      speak(`tap the ${key} key, when you hear this sound. Please press the ${key} key`);
+      return key; // Set the expected key for this step
+    },
+  })),
+];
       {
         message:
           "Excellent! During the game, you'll need to tap the correct key when you hear each note. Tap spacebar to start playing or escape to return to the menu.",
